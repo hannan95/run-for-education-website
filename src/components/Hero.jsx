@@ -1,36 +1,36 @@
 import { useEffect, useState } from 'react'
 
-const GOAL = 500000
-
 export default function Hero() {
-  const [raised, setRaised] = useState(null)
+  const [stats, setStats] = useState(null)
 
   useEffect(() => {
     fetch('/api/progress')
       .then((res) => res.json())
-      .then((data) => setRaised(data.raised ?? 0))
-      .catch(() => setRaised(0))
+      .then((data) => setStats({ runners: data.runners ?? 0, raised: data.raised ?? 0 }))
+      .catch(() => setStats({ runners: 0, raised: 0 }))
   }, [])
-
-  const pct = raised === null ? 0 : Math.min(100, Math.round((raised / GOAL) * 100))
 
   return (
     <section id="top" className="hero">
       <div className="container">
-        <p className="sub">Sunday, October 18, 2026 — Islamabad &amp; Partner Cities Nationwide</p>
+        <p className="sub">A nationwide running event — Sunday, October 18, 2026 — Islamabad &amp; Partner Cities</p>
         <h1>Run for Education</h1>
         <p className="support">Every Step, Every Club, One Cause</p>
         <div className="cta-row">
           <a className="btn btn-primary" href="#register">Register Now</a>
-          <a className="btn btn-ghost" href="#donate">Donate</a>
+          <a className="btn btn-ghost" href="#event">View Event Details</a>
         </div>
-        <div className="progress-wrap">
-          <div className="progress-label">
-            <span>Help us raise <b>PKR 500,000</b> for TCF</span>
-            <span>{raised === null ? '—' : `PKR ${raised.toLocaleString()} raised`}</span>
-          </div>
-          <div className="progress-track">
-            <div className="progress-fill" style={{ width: `${pct}%` }} />
+        <div className="impact-banner">
+          <p className="impact-line">Every registration supports TCF's education programs.</p>
+          <div className="stat-row">
+            <div className="stat-primary">
+              <span className="stat-num">{stats === null ? '—' : stats.runners.toLocaleString()}</span>
+              <span className="stat-lbl">Runners registered nationwide</span>
+            </div>
+            <div className="stat-secondary">
+              <span className="stat-num">{stats === null ? '—' : `PKR ${stats.raised.toLocaleString()}`}</span>
+              <span className="stat-lbl">Raised for education</span>
+            </div>
           </div>
         </div>
       </div>

@@ -1,9 +1,9 @@
 // Node.js serverless function — Vercel turns this into GET /api/progress.
-// Returns the live fundraising total for the hero progress bar. Currently
-// a static stub since there's no database yet — wire this to a real tally
-// (e.g. sum of confirmed registrations + donations in Supabase/Mongo) once
-// registration and donations are actually being stored.
+// Returns live campaign stats for the hero impact banner. Currently a
+// static stub since there's no database yet — wire this to a real tally
+// (e.g. count of confirmed registrations, sum of donations, in
+// Supabase/Mongo) once registration and donations are actually stored.
 
 export default async function handler(req, res) {
-  return res.status(200).json({ raised: 0, goal: 500000 })
+  return res.status(200).json({ runners: 0, raised: 0 })
 }

@@ -50,7 +50,7 @@ function localApiPlugin() {
       })
 
       server.middlewares.use('/api/progress', (req, res) => {
-        sendJson(res, 200, { raised: 0, goal: 500000 })
+        sendJson(res, 200, { runners: 0, raised: 0 })
       })
     },
   }
