@@ -1,11 +1,12 @@
 import { useState } from 'react'
 
-const initial = { name: '', email: '', phone: '', category: 'physical', city: '', customBib: false }
+const initial = { name: '', email: '', phone: '', category: 'physical', city: '', customBib: false, referralCode: '' }
 
 export default function Registration() {
   const [form, setForm] = useState(initial)
   const [status, setStatus] = useState('idle') // idle | submitting | success | error
   const [errorMsg, setErrorMsg] = useState('')
+  const [result, setResult] = useState(null)
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target
@@ -24,11 +25,12 @@ export default function Registration() {
         body: JSON.stringify(form),
       })
 
+      const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
         throw new Error(data.error || 'Something went wrong. Please try again.')
       }
 
+      setResult(data)
       setStatus('success')
       setForm(initial)
     } catch (err) {
@@ -65,6 +67,15 @@ export default function Registration() {
             <div className="form-success">
               <h3>You're registered!</h3>
               <p>Check your email for confirmation. See you on race day.</p>
+              {result?.registrationId && (
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--paper-dim)' }}>
+                  Registration ID: {result.registrationId}<br />
+                  Amount due: PKR {result.amountDue?.toLocaleString()} — payment instructions follow separately.
+                </p>
+              )}
+              {result?.qrDataUrl && (
+                <img src={result.qrDataUrl} alt="Registration QR code" width={140} height={140} style={{ marginTop: 12, borderRadius: 4 }} />
+              )}
             </div>
           ) : (
             <form className="form-grid" onSubmit={handleSubmit}>
@@ -99,6 +110,10 @@ export default function Registration() {
                 <input type="checkbox" name="customBib" checked={form.customBib} onChange={handleChange} />
                 Add a custom / personalized bib (+PKR 1,000)
               </label>
+              <div className="field">
+                <label htmlFor="referralCode">Referral / ambassador code (optional)</label>
+                <input id="referralCode" name="referralCode" value={form.referralCode} onChange={handleChange} />
+              </div>
 
               {status === 'error' && <p className="form-error">{errorMsg}</p>}
 

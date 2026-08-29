@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Run for Education — Admin</title>
+    <style>
+      body { font-family: system-ui, sans-serif; background: #101015; color: #F2F2F4; margin: 0; padding: 2rem; }
+      h1 { font-size: 1.3rem; }
+      .bar { display: flex; gap: .6rem; margin-bottom: 1.5rem; }
+      input { background: #1F1F27; border: 1px solid #2E2E38; color: #F2F2F4; padding: .5rem .7rem; border-radius: 4px; flex: 1; max-width: 320px; }
+      button { background: #08D49A; color: #04231a; border: none; padding: .5rem 1rem; border-radius: 4px; font-weight: 600; cursor: pointer; }
+      table { width: 100%; border-collapse: collapse; font-size: 13px; }
+      th, td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid #2E2E38; white-space: nowrap; }
+      th { color: #9C9CA8; text-transform: uppercase; font-size: 11px; letter-spacing: .05em; }
+      .err { color: #ff8a80; }
+      #wrap { overflow-x: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>Run for Education — Registrants</h1>
+    <div class="bar">
+      <input id="token" type="password" placeholder="Admin token" />
+      <button id="load">Load</button>
+      <button id="csv">Download CSV</button>
+    </div>
+    <p id="status"></p>
+    <div id="wrap"></div>
+    <script>
+      function getToken() { return document.getElementById('token').value.trim() }
+
+      async function loadRegistrants() {
+        const statusEl = document.getElementById('status')
+        const wrap = document.getElementById('wrap')
+        statusEl.textContent = 'Loading…'
+        statusEl.className = ''
+        try {
+          const res = await fetch('/api/admin/registrants', {
+            headers: { Authorization: 'Bearer ' + getToken() },
+          })
+          if (!res.ok) throw new Error(res.status === 401 ? 'Wrong or missing token.' : 'Request failed.')
+          const { registrants } = await res.json()
+          statusEl.textContent = registrants.length + ' registrant(s)'
+          if (!registrants.length) { wrap.innerHTML = ''; return }
+          const cols = ['name', 'email', 'phone', 'category', 'city', 'customBib', 'status', 'createdAt']
+          const rows = registrants.map((r) =>
+            '<tr>' + cols.map((c) => '<td>' + (r[c] ?? '') + '</td>').join('') + '</tr>'
+          ).join('')
+          wrap.innerHTML = '<table><thead><tr>' + cols.map((c) => '<th>' + c + '</th>').join('') + '</tr></thead><tbody>' + rows + '</tbody></table>'
+        } catch (err) {
+          statusEl.textContent = err.message
+          statusEl.className = 'err'
+          wrap.innerHTML = ''
+        }
+      }
+
+      document.getElementById('load').addEventListener('click', loadRegistrants)
+      document.getElementById('csv').addEventListener('click', () => {
+        fetch('/api/admin/registrants?format=csv', { headers: { Authorization: 'Bearer ' + getToken() } })
+          .then((res) => { if (!res.ok) throw new Error('Wrong or missing token.'); return res.blob() })
+          .then((blob) => {
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = 'registrants.csv'
+            a.click()
+            URL.revokeObjectURL(url)
+          })
+          .catch((err) => { document.getElementById('status').textContent = err.message; document.getElementById('status').className = 'err' })
+      })
+    </script>
+  </body>
+</html>

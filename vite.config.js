@@ -1,57 +1,54 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Local-dev-only stand-ins for the /api serverless functions, so the site
-// works end to end with `npm run dev` alone. On Vercel, the files under
-// /api handle these routes instead — this plugin never runs in production.
-function localApiPlugin() {
-  function readJson(req) {
-    return new Promise((resolve, reject) => {
-      let body = ''
-      req.on('data', (chunk) => { body += chunk })
-      req.on('end', () => {
-        try { resolve(JSON.parse(body || '{}')) } catch (err) { reject(err) }
-      })
+function readJson(req) {
+  return new Promise((resolve, reject) => {
+    let body = ''
+    req.on('data', (chunk) => { body += chunk })
+    req.on('end', () => {
+      try { resolve(JSON.parse(body || '{}')) } catch (err) { reject(err) }
     })
-  }
+    req.on('error', reject)
+  })
+}
 
-  function sendJson(res, status, payload) {
-    res.statusCode = status
+function enhanceRes(res) {
+  res.status = (code) => { res.statusCode = code; return res }
+  res.json = (payload) => {
     res.setHeader('Content-Type', 'application/json')
     res.end(JSON.stringify(payload))
   }
+  return res
+}
 
+// Local-dev-only bridge: routes /api/* straight to the same handler files
+// Vercel runs in production, via Vite's SSR module loader. This keeps one
+// source of truth per endpoint instead of a hand-duplicated copy that can
+// silently drift from the real thing.
+function localApiPlugin() {
+  const routes = ['register', 'contact', 'progress', 'admin/registrants']
   return {
     name: 'local-api',
     configureServer(server) {
-      server.middlewares.use('/api/register', async (req, res) => {
-        if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' })
-        try {
-          const { name, email, phone, category, city, customBib } = await readJson(req)
-          if (!name || !email || !phone) return sendJson(res, 400, { error: 'Name, email, and phone are required.' })
-          if (category === 'virtual' && !city) return sendJson(res, 400, { error: 'City / partner club is required for virtual registration.' })
-          console.log('New registration:', { name, email, phone, category, city, customBib })
-          sendJson(res, 200, { ok: true, message: `Thanks, ${name}! You're registered.` })
-        } catch {
-          sendJson(res, 400, { error: 'Invalid request body.' })
-        }
-      })
-
-      server.middlewares.use('/api/contact', async (req, res) => {
-        if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' })
-        try {
-          const { name, email, message } = await readJson(req)
-          if (!name || !email || !message) return sendJson(res, 400, { error: 'Name, email, and message are required.' })
-          console.log('New contact message:', { name, email, message })
-          sendJson(res, 200, { ok: true })
-        } catch {
-          sendJson(res, 400, { error: 'Invalid request body.' })
-        }
-      })
-
-      server.middlewares.use('/api/progress', (req, res) => {
-        sendJson(res, 200, { runners: 0, raised: 0 })
-      })
+      for (const route of routes) {
+        server.middlewares.use(`/api/${route}`, async (req, res) => {
+          enhanceRes(res)
+          if (req.method !== 'GET') {
+            try {
+              req.body = await readJson(req)
+            } catch {
+              return res.status(400).json({ error: 'Invalid request body.' })
+            }
+          }
+          try {
+            const mod = await server.ssrLoadModule(`/api/${route}.js`)
+            await mod.default(req, res)
+          } catch (err) {
+            console.error(`API route /api/${route} failed:`, err)
+            if (!res.writableEnded) res.status(500).json({ error: 'Internal server error.' })
+          }
+        })
+      }
     },
   }
 }

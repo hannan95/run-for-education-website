@@ -1,9 +1,15 @@
 // Node.js serverless function — Vercel turns this into GET /api/progress.
-// Returns live campaign stats for the hero impact banner. Currently a
-// static stub since there's no database yet — wire this to a real tally
-// (e.g. count of confirmed registrations, sum of donations, in
-// Supabase/Mongo) once registration and donations are actually stored.
+// Powers the homepage's "Runners registered" / "PKR raised" stats. Cached
+// lightly so the homepage isn't hitting the database on every page load.
+
+import { prisma } from '../lib/prisma.js'
 
 export default async function handler(req, res) {
-  return res.status(200).json({ runners: 0, raised: 0 })
+  const [runners, paid] = await Promise.all([
+    prisma.registrant.count({ where: { status: { not: 'cancelled' } } }),
+    prisma.payment.aggregate({ _sum: { amount: true }, where: { status: 'success' } }),
+  ])
+
+  res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=60')
+  return res.status(200).json({ runners, raised: paid._sum.amount || 0 })
 }

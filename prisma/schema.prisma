@@ -1,0 +1,91 @@
+// Local dev uses SQLite (file-based, zero setup). For production on Vercel,
+// switch the datasource provider to "postgresql" and set DATABASE_URL to a
+// hosted Postgres connection string (e.g. Neon or Supabase, free tier) —
+// Vercel's serverless functions have no persistent filesystem, so SQLite
+// only works for local development.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Registrant {
+  id               String    @id @default(cuid())
+  name             String
+  email            String
+  phone            String
+  category         String // physical | virtual
+  city             String? // partner club / city, virtual only
+  customBib        Boolean   @default(false)
+  referralCodeUsed String?
+  status           String    @default("pending") // pending | confirmed | cancelled
+  createdAt        DateTime  @default(now())
+  payments         Payment[]
+}
+
+model Payment {
+  id                   String     @id @default(cuid())
+  registrant           Registrant @relation(fields: [registrantId], references: [id])
+  registrantId         String
+  amount               Int
+  currency             String     @default("PKR")
+  method               String? // jazzcash | easypaisa | card | bank_transfer
+  gatewayTransactionId String?
+  status               String     @default("pending") // pending | success | failed | refunded
+  createdAt            DateTime   @default(now())
+}
+
+model PartnerClub {
+  id                 String   @id @default(cuid())
+  clubName           String
+  city               String
+  contactPerson      String?
+  contactEmail       String?
+  contactPhone       String?
+  confirmedHeadcount Int      @default(0)
+  kitShippingStatus  String   @default("not_shipped")
+  onboardingStatus   String   @default("inquired")
+  createdAt          DateTime @default(now())
+}
+
+model Ambassador {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  referralCode String   @unique
+  tier         String   @default("ambassador") // ambassador | founding_partner
+  createdAt    DateTime @default(now())
+}
+
+model Sponsor {
+  id              String   @id @default(cuid())
+  name            String
+  tier            String?
+  logoUrl         String?
+  contactEmail    String?
+  amountCommitted Int?
+  status          String   @default("inquired")
+  createdAt       DateTime @default(now())
+}
+
+model MerchOrder {
+  id           String   @id @default(cuid())
+  registrantId String?
+  item         String
+  size         String?
+  quantity     Int      @default(1)
+  price        Int
+  createdAt    DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+}

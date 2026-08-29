@@ -1,5 +1,7 @@
 // Node.js serverless function — Vercel turns this into POST /api/contact.
 
+import { prisma } from '../lib/prisma.js'
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
@@ -12,7 +14,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Name, email, and message are required.' })
   }
 
-  console.log('New contact message:', { name, email, message })
+  await prisma.contactMessage.create({ data: { name, email, message } })
 
   return res.status(200).json({ ok: true })
 }
