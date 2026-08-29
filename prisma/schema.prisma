@@ -1,15 +1,13 @@
-// Local dev uses SQLite (file-based, zero setup). For production on Vercel,
-// switch the datasource provider to "postgresql" and set DATABASE_URL to a
-// hosted Postgres connection string (e.g. Neon or Supabase, free tier) —
-// Vercel's serverless functions have no persistent filesystem, so SQLite
-// only works for local development.
+// Postgres, hosted on Neon — shared by local dev and production (Vercel's
+// serverless functions have no persistent filesystem, so this can't be a
+// local SQLite file the way it was during earlier development).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
