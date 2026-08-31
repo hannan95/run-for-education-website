@@ -27,11 +27,14 @@ export default async function handler(req, res) {
 
   const url = new URL(req.url, 'http://localhost')
   if (url.searchParams.get('format') === 'csv') {
-    const header = ['id', 'name', 'email', 'phone', 'category', 'city', 'customBib', 'referralCodeUsed', 'status', 'amountDue', 'paymentStatus', 'createdAt']
+    const header = [
+      'id', 'name', 'email', 'phone', 'category', 'city', 'packageType', 'customBib', 'customBibText',
+      'wantsAmbassador', 'ambassadorContact', 'referralCodeUsed', 'status', 'amountDue', 'paymentStatus', 'createdAt',
+    ]
     const rows = registrants.map((r) => [
-      r.id, r.name, r.email, r.phone, r.category, r.city || '', r.customBib,
-      r.referralCodeUsed || '', r.status, r.payments[0]?.amount ?? '', r.payments[0]?.status ?? '',
-      r.createdAt.toISOString(),
+      r.id, r.name, r.email, r.phone, r.category, r.city || '', r.packageType, r.customBib, r.customBibText || '',
+      r.wantsAmbassador, r.ambassadorContact || '', r.referralCodeUsed || '', r.status,
+      r.payments[0]?.amount ?? '', r.payments[0]?.status ?? '', r.createdAt.toISOString(),
     ])
     const csv = [header, ...rows]
       .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))

@@ -26,7 +26,7 @@ function enhanceRes(res) {
 // source of truth per endpoint instead of a hand-duplicated copy that can
 // silently drift from the real thing.
 function localApiPlugin() {
-  const routes = ['register', 'contact', 'progress', 'admin/registrants']
+  const routes = ['register', 'contact', 'admin/registrants']
   return {
     name: 'local-api',
     configureServer(server) {

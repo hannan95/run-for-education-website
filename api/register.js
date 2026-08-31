@@ -12,7 +12,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { name, email, phone, category, city, customBib, referralCode } = req.body || {}
+  const {
+    name, email, phone, category, city, packageType, customBib, customBibText,
+    referralCode, wantsAmbassador, ambassadorContact,
+  } = req.body || {}
 
   if (!name || !email || !phone) {
     return res.status(400).json({ error: 'Name, email, and phone are required.' })
@@ -21,6 +24,7 @@ export default async function handler(req, res) {
   if (normalizedCategory === 'virtual' && !city) {
     return res.status(400).json({ error: 'City / partner club is required for virtual registration.' })
   }
+  const normalizedPackage = packageType === 'bib_medal' ? 'bib_medal' : 'bib_medal_shirt'
 
   const registrant = await prisma.registrant.create({
     data: {
@@ -29,7 +33,11 @@ export default async function handler(req, res) {
       phone,
       category: normalizedCategory,
       city: normalizedCategory === 'virtual' ? city : null,
+      packageType: normalizedPackage,
       customBib: Boolean(customBib),
+      customBibText: customBib ? (customBibText || null) : null,
+      wantsAmbassador: Boolean(wantsAmbassador),
+      ambassadorContact: wantsAmbassador ? (ambassadorContact || null) : null,
       referralCodeUsed: referralCode || null,
     },
   })

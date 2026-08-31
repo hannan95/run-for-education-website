@@ -1,8 +1,14 @@
+import logo from '../assets/run-for-education-logo.png'
+
 export default function Header() {
   return (
     <header className="site-header">
       <div className="container header-inner">
-        <a className="wordmark" href="#top">RUN FOR EDUCATION</a>
+        <a className="wordmark" href="#top">
+          <span className="logo-crop header-logo-crop">
+            <img src={logo} alt="Run for Education" />
+          </span>
+        </a>
         <nav className="site-nav">
           <a href="#about">About</a>
           <a href="#event">Event</a>

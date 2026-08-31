@@ -1,4 +1,5 @@
 import tcfLogo from '../assets/tcflogo.svg'
+import logo from '../assets/run-for-education-logo.png'
 
 export default function Footer() {
   return (
@@ -6,7 +7,9 @@ export default function Footer() {
       <div className="container">
         <div className="footer-top">
           <div className="footer-brand">
-            <span className="wordmark">RUN FOR EDUCATION</span>
+            <span className="logo-crop footer-logo-crop">
+              <img src={logo} alt="Run for Education" />
+            </span>
             <span className="footer-tagline">Every Step, Every Club, One Cause</span>
           </div>
           <div className="footer-partner">

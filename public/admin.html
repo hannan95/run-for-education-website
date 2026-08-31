@@ -42,7 +42,7 @@
           const { registrants } = await res.json()
           statusEl.textContent = registrants.length + ' registrant(s)'
           if (!registrants.length) { wrap.innerHTML = ''; return }
-          const cols = ['name', 'email', 'phone', 'category', 'city', 'customBib', 'status', 'createdAt']
+          const cols = ['name', 'email', 'phone', 'category', 'city', 'packageType', 'customBib', 'customBibText', 'wantsAmbassador', 'ambassadorContact', 'status', 'createdAt']
           const rows = registrants.map((r) =>
             '<tr>' + cols.map((c) => '<td>' + (r[c] ?? '') + '</td>').join('')
               + '<td><button class="del" data-id="' + r.id + '">Delete</button></td></tr>'

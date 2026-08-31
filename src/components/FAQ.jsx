@@ -3,7 +3,7 @@ import { useState } from 'react'
 const ITEMS = [
   {
     q: "What's included in my registration?",
-    a: 'A race bib, an official Run for Education t-shirt, and a finisher medal.',
+    a: "Every registration includes a race bib and a finisher medal. You can also choose to add the official Run for Education t-shirt at no extra cost — just pick your pack when you register.",
   },
   {
     q: "Can I join if I'm not in Islamabad?",
@@ -15,7 +15,7 @@ const ITEMS = [
   },
   {
     q: 'Is there a refund policy?',
-    a: 'To be decided and published before registration opens.',
+    a: "We'll publish our full refund and transfer terms here before payment collection opens. In the meantime, if your plans change, email us and we'll sort it out on a case-by-case basis.",
     tbd: true,
   },
   {

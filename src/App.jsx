@@ -3,7 +3,6 @@ import Hero from './components/Hero.jsx'
 import About from './components/About.jsx'
 import EventDetails from './components/EventDetails.jsx'
 import Registration from './components/Registration.jsx'
-import Pricing from './components/Pricing.jsx'
 import Donate from './components/Donate.jsx'
 import PartnerClubs from './components/PartnerClubs.jsx'
 import Sponsors from './components/Sponsors.jsx'
@@ -22,7 +21,6 @@ export default function App() {
         <About />
         <EventDetails />
         <Registration />
-        <Pricing />
         <Donate />
         <PartnerClubs />
         <Sponsors />

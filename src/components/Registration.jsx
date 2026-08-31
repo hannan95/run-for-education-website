@@ -1,6 +1,10 @@
 import { useState } from 'react'
 
-const initial = { name: '', email: '', phone: '', category: 'physical', city: '', customBib: false, referralCode: '' }
+const initial = {
+  name: '', email: '', phone: '', category: 'physical', city: '',
+  packageType: 'bib_medal_shirt', customBib: false, customBibText: '',
+  referralCode: '', wantsAmbassador: false, ambassadorContact: '',
+}
 
 export default function Registration() {
   const [form, setForm] = useState(initial)
@@ -47,11 +51,10 @@ export default function Registration() {
         <div className="reg-layout">
           <div>
             <div className="reg-included">
-              <h5>Included with registration</h5>
+              <h5>Choose your pack</h5>
               <ul>
-                <li>Race bib</li>
-                <li>Official Run for Education t-shirt</li>
-                <li>Finisher medal</li>
+                <li>Bib + finisher medal</li>
+                <li>Bib + finisher medal + official Run for Education t-shirt</li>
               </ul>
             </div>
             <div className="reg-included">
@@ -106,14 +109,43 @@ export default function Registration() {
                   <input id="city" name="city" value={form.city} onChange={handleChange} placeholder="e.g. Lahore Runners Club" required />
                 </div>
               )}
+              <div className="field">
+                <label htmlFor="packageType">Race pack</label>
+                <select id="packageType" name="packageType" value={form.packageType} onChange={handleChange}>
+                  <option value="bib_medal_shirt">Bib + medal + official t-shirt</option>
+                  <option value="bib_medal">Bib + medal only</option>
+                </select>
+              </div>
               <label className="check-row">
                 <input type="checkbox" name="customBib" checked={form.customBib} onChange={handleChange} />
                 Add a custom / personalized bib (+PKR 1,000)
               </label>
+              {form.customBib && (
+                <div className="field">
+                  <label htmlFor="customBibText">Your bib number or name</label>
+                  <input
+                    id="customBibText" name="customBibText" value={form.customBibText} onChange={handleChange}
+                    placeholder="e.g. 07 or ALI" required
+                  />
+                </div>
+              )}
               <div className="field">
                 <label htmlFor="referralCode">Referral / ambassador code (optional)</label>
                 <input id="referralCode" name="referralCode" value={form.referralCode} onChange={handleChange} />
               </div>
+              <label className="check-row">
+                <input type="checkbox" name="wantsAmbassador" checked={form.wantsAmbassador} onChange={handleChange} />
+                Think you can help us make an impact? Become our Running Ambassador
+              </label>
+              {form.wantsAmbassador && (
+                <div className="field">
+                  <label htmlFor="ambassadorContact">Best way to reach you about it</label>
+                  <input
+                    id="ambassadorContact" name="ambassadorContact" value={form.ambassadorContact} onChange={handleChange}
+                    placeholder="WhatsApp, Instagram, or just confirm your email/phone above" required
+                  />
+                </div>
+              )}
 
               {status === 'error' && <p className="form-error">{errorMsg}</p>}
 

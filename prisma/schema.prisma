@@ -18,7 +18,11 @@ model Registrant {
   phone            String
   category         String // physical | virtual
   city             String? // partner club / city, virtual only
+  packageType      String    @default("bib_medal_shirt") // bib_medal | bib_medal_shirt
   customBib        Boolean   @default(false)
+  customBibText    String? // runner's chosen bib number/name, when customBib is true
+  wantsAmbassador  Boolean   @default(false)
+  ambassadorContact String? // preferred way to reach them about the ambassador program
   referralCodeUsed String?
   status           String    @default("pending") // pending | confirmed | cancelled
   createdAt        DateTime  @default(now())
